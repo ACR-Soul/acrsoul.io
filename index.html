@@ -1,223 +1,329 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>_Acroz_ - ACR Soul 1.1.2</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ACR-Soul - Kullanıcı Görüntüleyici</title>
+  <style>
+    :root{
+      --bg:#0f1724; /* koyu arka */
+      --card:#0b1220;
+      --accent:#e11d48; /* kırmızı-pembe ton */
+      --muted:#98a2b3;
+      --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,#071024 0%, #0a1326 100%);
+      color:#e6eef8;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
 
-        body {
-            background: linear-gradient(135deg, #1a0000 0%, #330000 50%, #4d0000 100%);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+    .container{
+      width:100%;
+      max-width:880px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:14px;
+      padding:28px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-        }
+    header{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-bottom:20px;
+    }
 
-        .profile-card {
-            background: rgba(20, 0, 0, 0.9);
-            border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 15px 35px rgba(255, 0, 0, 0.3);
-            border: 2px solid #ff3333;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
+    .logo{
+      width:64px;
+      height:64px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      font-weight:700;
+      font-size:18px;
+      background:linear-gradient(135deg,var(--accent), #a71b3d);
+      box-shadow: 0 6px 18px rgba(167,27,61,0.18);
+    }
 
-        .profile-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 50, 50, 0.1), transparent);
-            transform: rotate(45deg);
-            animation: shine 3s infinite;
-        }
+    h1{
+      margin:0;
+      font-size:28px;
+      letter-spacing:1px;
+    }
+    p.lead{ margin:6px 0 0; color:var(--muted); font-size:13px }
 
-        @keyframes shine {
-            0% { transform: rotate(45deg) translateX(-100%); }
-            100% { transform: rotate(45deg) translateX(100%); }
-        }
+    .controls{
+      display:flex;
+      gap:12px;
+      margin-top:18px;
+      align-items:flex-end;
+      flex-wrap:wrap;
+    }
+    label{ font-size:13px; color:var(--muted); display:block; margin-bottom:6px }
+    .field{
+      background:var(--glass);
+      border-radius:10px;
+      padding:12px;
+      min-width:220px;
+      display:flex;
+      flex-direction:column;
+    }
+    input[type="text"], input[type="url"], select {
+      background:transparent;
+      border:0;
+      outline:0;
+      color:inherit;
+      font-size:15px;
+      width:100%;
+    }
 
-        .username {
-            font-size: 3rem;
-            font-weight: 900;
-            background: linear-gradient(45deg, #ff3333, #ff6666);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-        }
+    .btn{
+      background:linear-gradient(90deg,var(--accent), #b92a4c);
+      border:0;
+      color:white;
+      padding:10px 14px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 6px 16px rgba(167,27,61,0.18);
+    }
+    .btn.secondary{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:var(--muted);
+      box-shadow:none;
+    }
 
-        .tagline {
-            font-size: 1.2rem;
-            color: #ff9999;
-            margin-bottom: 30px;
-            font-style: italic;
-        }
+    .preview{
+      margin-top:22px;
+      display:flex;
+      gap:18px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-start;
+    }
 
-        .client-info {
-            background: rgba(40, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 25px;
-            margin: 25px 0;
-            border: 1px solid #ff3333;
-        }
+    .head-card{
+      width:130px;
+      min-width:130px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      border-radius:12px;
+      padding:12px;
+      text-align:center;
+      border:1px solid rgba(255,255,255,0.03);
+      transition:transform .16s ease, box-shadow .16s ease;
+    }
+    .head-card:hover{ transform:translateY(-6px); box-shadow: 0 18px 40px rgba(2,6,23,0.5) }
 
-        .client-name {
-            font-size: 2rem;
-            color: #ff3333;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
+    .head{
+      width:96px;
+      height:96px;
+      border-radius:10px;
+      margin:0 auto 10px;
+      background:#071022;
+      display:block;
+      object-fit:cover;
+      border:1px solid rgba(255,255,255,0.04);
+      cursor:pointer;
+    }
 
-        .version {
-            font-size: 1.5rem;
-            color: #ff6666;
-            margin-bottom: 20px;
-        }
+    .username{
+      font-weight:700;
+      font-size:14px;
+      margin-bottom:4px;
+    }
+    .meta{ font-size:12px; color:var(--muted) }
 
-        .status {
-            display: inline-block;
-            background: linear-gradient(45deg, #ff3333, #ff6666);
-            color: #330000;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
+    .hint{ margin-top:12px; color:var(--muted); font-size:13px }
 
-        .features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .feature {
-            background: rgba(40, 0, 0, 0.7);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #ff3333;
-            transition: all 0.3s ease;
-        }
-
-        .feature:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
-        }
-
-        .feature i {
-            font-size: 1.8rem;
-            color: #ff3333;
-            margin-bottom: 10px;
-        }
-
-        .feature-name {
-            font-weight: bold;
-            color: #ff6666;
-            margin-bottom: 5px;
-        }
-
-        .feature-desc {
-            font-size: 0.8rem;
-            color: #ff9999;
-        }
-
-        .signature {
-            margin-top: 30px;
-            font-size: 0.9rem;
-            color: #ff9999;
-            border-top: 1px solid #ff3333;
-            padding-top: 15px;
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-    </style>
+    /* responsive */
+    @media (max-width:560px){
+      .controls{ flex-direction:column; align-items:stretch }
+      .field{ min-width:unset; width:100% }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="profile-card">
-            <div class="username">_Acroz_</div>
-            <div class="tagline">Minecraft Client User</div>
-            
-            <div class="client-info">
-                <div class="client-name">ACR Soul</div>
-                <div class="version">v1.1.2</div>
-                <div class="status pulse">ACTIVE</div>
-            </div>
-            
-            <div class="features">
-                <div class="feature">
-                    <i class="fas fa-bolt"></i>
-                    <div class="feature-name">Performance</div>
-                    <div class="feature-desc">Optimized for FPS</div>
-                </div>
-                <div class="feature">
-                    <i class="fas fa-eye"></i>
-                    <div class="feature-name">Visuals</div>
-                    <div class="feature-desc">ESP & UI Enhancements</div>
-                </div>
-                <div class="feature">
-                    <i class="fas fa-fist-raised"></i>
-                    <div class="feature-name">Combat</div>
-                    <div class="feature-desc">PvP Improvements</div>
-                </div>
-                <div class="feature">
-                    <i class="fas fa-shield-alt"></i>
-                    <div class="feature-name">Protection</div>
-                    <div class="feature-desc">Anti-Cheat Bypass</div>
-                </div>
-            </div>
-            
-            <div class="signature">
-                Minecraft 1.21 - 1.21.1 Compatible
-            </div>
+  <div class="container" role="main">
+    <header>
+      <div class="logo">ACR<br/>Soul</div>
+      <div>
+        <h1>ACR-Soul</h1>
+        <p class="lead">Kullanıcı adı gir → oyuncu kafası görünür → kafaya tıklayınca istediğiniz siteye yönlendirir.</p>
+      </div>
+    </header>
+
+    <form id="form" autocomplete="off" onsubmit="return false;">
+      <div class="controls">
+        <div class="field" style="flex:1; min-width:240px;">
+          <label for="username">Kullanıcı adı (Minecraft)</label>
+          <input id="username" type="text" placeholder="Örnek: Notch veya acroz" />
         </div>
+
+        <div class="field" style="min-width:260px;">
+          <label for="target">Yönlendirme URL'si (tıklanınca açılacak site)</label>
+          <input id="target" type="url" placeholder="https://example.com veya boşsa yeni sekme açılmayacak" />
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="field" style="width:120px;">
+            <label for="size">Boyut (px)</label>
+            <select id="size" aria-label="avatar size">
+              <option value="64">64</option>
+              <option value="96" selected>96</option>
+              <option value="128">128</option>
+              <option value="200">200</option>
+            </select>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button class="btn" id="showBtn">Göster</button>
+            <button class="btn secondary" id="clearBtn" type="button">Temizle</button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="preview" id="preview" aria-live="polite">
+      <!-- Dinamik olarak avatarlar buraya gelecek -->
     </div>
 
-    <script>
-        // Basit bir parıltı efekti
-        document.addEventListener('DOMContentLoaded', function() {
-            const features = document.querySelectorAll('.feature');
-            features.forEach((feature, index) => {
-                feature.style.opacity = '0';
-                feature.style.transform = 'translateY(20px)';
-                
-                setTimeout(() => {
-                    feature.style.transition = 'opacity 0.5s, transform 0.5s';
-                    feature.style.opacity = '1';
-                    feature.style.transform = 'translateY(0)';
-                }, index * 200 + 500);
-            });
+    <p class="hint">Not: Bu sayfa doğrudan Minecraft sunucusundan veri çekmez. Ortak kullanımlı avatar servisi (public avatar API) kullanılır — kullanıcı adını girince genel avatar görüntüsü getirilir.</p>
+  </div>
+
+  <script>
+    (function(){
+      const usernameInput = document.getElementById('username');
+      const targetInput = document.getElementById('target');
+      const sizeSelect = document.getElementById('size');
+      const showBtn = document.getElementById('showBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const preview = document.getElementById('preview');
+
+      // Kullanıcıdan gelen URL güvenliği: basit kontrol (javascript yönlendirme / boşluk)
+      function cleanUrl(u){
+        if(!u) return '';
+        try{
+          const url = new URL(u);
+          return url.toString();
+        }catch(e){
+          // eğer protokolsüz yazıldıysa http ekle
+          try {
+            const url2 = new URL('https://' + u);
+            return url2.toString();
+          } catch(e2){
+            return ''; // geçersizse boş döndür
+          }
+        }
+      }
+
+      // Avatar servisleri (username ile çalışır): minotar ve mc-heads
+      function avatarUrl(username, size){
+        username = encodeURIComponent(username);
+        // minotar: https://minotar.net/avatar/<username>/<size>.png
+        return `https://minotar.net/avatar/${username}/${size}.png`;
+        // Alternatifler: https://crafatar.com/avatars/<uuid>?size=<size>  (uuid gerek) 
+      }
+
+      function createHeadCard(username, avatarSrc, targetUrl){
+        const card = document.createElement('div');
+        card.className = 'head-card';
+
+        const img = document.createElement('img');
+        img.className = 'head';
+        img.alt = username + ' avatar';
+        img.src = avatarSrc;
+        img.loading = 'lazy';
+
+        // tıklama: hedef url varsa yeni pencerede aç, yoksa hiçbir şey yapma
+        img.addEventListener('click', (e) => {
+          if(targetUrl){
+            // açılacak pencereyi güvenli şekilde aç
+            window.open(targetUrl, '_blank', 'noopener,noreferrer');
+          } else {
+            // eğer hedef yoksa görseli büyüt
+            const w = window.open('', '_blank');
+            w.document.write(`<title>${username} - avatar</title><img src="${avatarSrc}" style="display:block;margin:30px auto;max-width:96%;height:auto;border-radius:8px">`);
+          }
         });
-    </script>
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'username';
+        nameEl.textContent = username;
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = targetUrl ? ('Tıkla → ' + targetUrl) : 'Tıklayınca yeni sekme açılır.';
+
+        card.appendChild(img);
+        card.appendChild(nameEl);
+        card.appendChild(meta);
+        return card;
+      }
+
+      function showAvatar(){
+        const username = usernameInput.value.trim();
+        if(!username){
+          alert('Lütfen bir kullanıcı adı girin.');
+          usernameInput.focus();
+          return;
+        }
+        const size = parseInt(sizeSelect.value) || 96;
+        const rawTarget = targetInput.value.trim();
+        const target = cleanUrl(rawTarget);
+
+        const avatar = avatarUrl(username, size);
+
+        // Eğer aynı kullanıcı zaten listede varsa onu güncelle
+        // (aynı isim + hedefle eşleşmiyorsa yeni bir kart eklenir)
+        const existing = Array.from(preview.querySelectorAll('.head-card .username'))
+                              .find(el => el.textContent.toLowerCase() === username.toLowerCase());
+        if(existing){
+          // mevcut kartı sil ve yenisini ekle başa
+          existing.parentElement.remove();
+        }
+
+        const card = createHeadCard(username, avatar, target);
+        // başa ekle
+        preview.insertBefore(card, preview.firstChild);
+      }
+
+      // eventler
+      showBtn.addEventListener('click', showAvatar);
+      clearBtn.addEventListener('click', () => {
+        usernameInput.value = '';
+        targetInput.value = '';
+        preview.innerHTML = '';
+        usernameInput.focus();
+      });
+
+      // Enter ile submit
+      usernameInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') { e.preventDefault(); showAvatar(); }
+      });
+      targetInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') { e.preventDefault(); showAvatar(); }
+      });
+
+      // örnek hızlı kullanım: doubleclick boş alan -> örnek doldur
+      document.addEventListener('dblclick', (e) => {
+        if(document.activeElement === document.body){
+          usernameInput.value = 'Notch';
+          targetInput.value = 'https://www.minecraft.net';
+        }
+      });
+
+    })();
+  </script>
 </body>
 </html>
 
