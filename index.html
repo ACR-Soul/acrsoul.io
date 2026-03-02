@@ -1,26 +1,987 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { motion } from "framer-motion";
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
-import { loadStripe } from "@stripe/stripe-js";
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haliya | Özel Halı Alım Satım</title>
+    <style>
+        /* Google Fonts ve Temel Sıfırlama */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-// ================= FIREBASE CONFIG =================
-// Firebase console üzerinden oluşturup buraya kendi bilgilerini ekle
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            background: #faf7f2;
+        }
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+        /* Özel Kaydırma Çubuğu */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
 
-// ================= STRIPE CONFIG =================
-const stripePromise = loadStripe("YOUR_ST
+        ::-webkit-scrollbar-track {
+            background: #e8d9c5;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c17817;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9e5f12;
+        }
+
+        /* Animasyonlar */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes rotateY {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(250, 247, 242, 0.9);
+            backdrop-filter: blur(10px);
+            animation: slideInDown 1s ease;
+            border-bottom: 2px solid rgba(193, 120, 23, 0.2);
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #2c1810;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .logo span {
+            color: #c17817;
+            display: inline-block;
+            animation: rotateY 3s infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #2c1810;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #c17817, #e8b87a);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::before {
+            width: 100%;
+        }
+
+        /* Hero Bölümü */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #faf7f2 0%, #e8d9c5 100%);
+        }
+
+        .floating-carpets {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .floating-carpet {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23c17817" opacity="0.1"/><path d="M20 20 L80 20 L80 80 L20 80 Z" fill="none" stroke="%23c17817" stroke-width="2" opacity="0.2"/><circle cx="50" cy="50" r="20" fill="none" stroke="%23c17817" stroke-width="2" opacity="0.2"/></svg>');
+            background-size: contain;
+            opacity: 0.3;
+            animation: float 6s infinite;
+        }
+
+        .floating-carpet:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .floating-carpet:nth-child(2) { top: 60%; right: 15%; animation-delay: 2s; }
+        .floating-carpet:nth-child(3) { bottom: 10%; left: 20%; animation-delay: 4s; }
+
+        .hero-content {
+            flex: 1;
+            animation: fadeInUp 1.5s ease;
+        }
+
+        .hero-content h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            color: #2c1810;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .hero-content h1 span {
+            color: #c17817;
+            display: inline-block;
+            animation: float 3s infinite;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: #5a3e2b;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c17817, #e8b87a);
+            color: white;
+            box-shadow: 0 10px 20px rgba(193, 120, 23, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(193, 120, 23, 0.4);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #2c1810;
+            border: 2px solid #c17817;
+        }
+
+        .btn-secondary:hover {
+            background: #c17817;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: slideInRight 1.5s ease;
+        }
+
+        .carpet-showcase {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .carpet-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #c17817, #e8b87a, #c17817);
+            animation: rotateY 10s infinite linear;
+            box-shadow: 0 20px 40px rgba(193, 120, 23, 0.3);
+        }
+
+        .carpet-circle::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border-radius: 50%;
+            background: #faf7f2;
+        }
+
+        /* Kategoriler Bölümü */
+        .categories {
+            padding: 5rem 5%;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: #2c1810;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .section-title span {
+            color: #c17817;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title span::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #c17817, transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .category-card {
+            background: #faf7f2;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: scaleIn 1s ease;
+            animation-fill-mode: both;
+        }
+
+        .category-card:nth-child(1) { animation-delay: 0.1s; }
+        .category-card:nth-child(2) { animation-delay: 0.3s; }
+        .category-card:nth-child(3) { animation-delay: 0.5s; }
+        .category-card:nth-child(4) { animation-delay: 0.7s; }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #c17817, #e8b87a);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0,0,0,0.1);
+        }
+
+        .category-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #c17817, #e8b87a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover .category-icon {
+            transform: rotateY(360deg);
+        }
+
+        .category-card h3 {
+            font-size: 1.5rem;
+            color: #2c1810;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-card p {
+            color: #5a3e2b;
+        }
+
+        /* Ürün Grid */
+        .products {
+            padding: 5rem 5%;
+            background: linear-gradient(135deg, #faf7f2 0%, #e8d9c5 100%);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease;
+            animation-fill-mode: both;
+            position: relative;
+        }
+
+        .product-card:nth-child(1) { animation-delay: 0.2s; }
+        .product-card:nth-child(2) { animation-delay: 0.4s; }
+        .product-card:nth-child(3) { animation-delay: 0.6s; }
+        .product-card:nth-child(4) { animation-delay: 0.8s; }
+        .product-card:nth-child(5) { animation-delay: 1s; }
+        .product-card:nth-child(6) { animation-delay: 1.2s; }
+
+        .product-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 40px rgba(0,0,0,0.2);
+        }
+
+        .product-image {
+            height: 250px;
+            background: linear-gradient(135deg, #e8d9c5, #d4b99b);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        .product-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(193,120,23,0.8), rgba(232,184,122,0.8));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .product-card:hover .product-overlay {
+            opacity: 1;
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-info h3 {
+            font-size: 1.2rem;
+            color: #2c1810;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #c17817;
+        }
+
+        /* Özel Teklifler */
+        .special-offer {
+            padding: 5rem 5%;
+            background: white;
+            text-align: center;
+        }
+
+        .offer-banner {
+            background: linear-gradient(135deg, #2c1810, #5a3e2b);
+            border-radius: 30px;
+            padding: 4rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            animation: scaleIn 1s ease;
+        }
+
+        .offer-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255,215,0,0.1), transparent);
+            animation: rotateY 10s infinite linear;
+        }
+
+        .offer-banner h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .offer-banner p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .offer-timer {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timer-item {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .timer-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #c17817;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c1810;
+            color: white;
+            padding: 3rem 5% 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .footer-links a {
+            color: #e8d9c5;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #c17817;
+            transform: translateX(5px);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .social-icon:hover {
+            background: #c17817;
+            transform: translateY(-3px) rotate(360deg);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #e8d9c5;
+        }
+
+        /* Responsive Tasarım */
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 100px;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .cta-buttons {
+                justify-content: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .offer-timer {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            Hali<span>ya</span>
+        </div>
+        <div class="nav-links">
+            <a href="#">Ana Sayfa</a>
+            <a href="#">Koleksiyonlar</a>
+            <a href="#">Hakkımızda</a>
+            <a href="#">İletişim</a>
+        </div>
+    </nav>
+
+    <!-- Hero Bölümü -->
+    <section class="hero">
+        <div class="floating-carpets">
+            <div class="floating-carpet"></div>
+            <div class="floating-carpet"></div>
+            <div class="floating-carpet"></div>
+        </div>
+        <div class="hero-content">
+            <h1>
+                <span>Özel</span> Halılar,<br>
+                Eşsiz <span>Tasarımlar</span>
+            </h1>
+            <p>Her halı bir hikaye anlatır. Sizin hikayenizi tamamlayacak özel halıları keşfedin. El dokuması, antika ve modern tasarımlar.</p>
+            <div class="cta-buttons">
+                <button class="btn btn-primary">Koleksiyonu İncele</button>
+                <button class="btn btn-secondary">Bilgi Al</button>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="carpet-showcase">
+                <div class="carpet-circle"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kategoriler -->
+    <section class="categories">
+        <h2 class="section-title">
+            <span>Kategoriler</span>
+        </h2>
+        <div class="category-grid">
+            <div class="category-card">
+                <div class="category-icon">🏺</div>
+                <h3>Antika Halılar</h3>
+                <p>Yüzyıllık geçmişe sahip özel parçalar</p>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">✨</div>
+                <h3>El Dokuması</h3>
+                <p>Usta ellerden özenle dokunan tasarımlar</p>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">🌟</div>
+                <h3>Modern Koleksiyon</h3>
+                <p>Çağdaş desenler ve renkler</p>
+            </div>
+            <div class="category-card">
+                <div class="category-icon">💫</div>
+                <h3>Özel Tasarım</h3>
+                <p>Size özel yaratılan eşsiz halılar</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ürünler -->
+    <section class="products">
+        <h2 class="section-title">
+            <span>Öne Çıkan Halılar</span>
+        </h2>
+        <div class="product-grid">
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 300 250'><rect width='300' height='250' fill='%23c17817' opacity='0.3'/><path d='M50 50 L250 50 L250 200 L50 200 Z' fill='none' stroke='%23c17817' stroke-width='3'/><circle cx='150' cy='125' r='50' fill='none' stroke='%23c17817' stroke-width='3'/><path d='M150 75 L200 125 L150 175 L100 125 Z' fill='%23c17817' opacity='0.5'/></svg>" alt="Halı 1">
+                    <div class="product-overlay">
+                        <button class="btn btn-primary">İncele</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>İpek Yolu Hereke</h3>
+                    <div class="product-price">₺12.500</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 300 250'><rect width='300' height='250' fill='%23e8b87a' opacity='0.3'/><path d='M40 40 L260 40 L260 210 L40 210 Z' fill='none' stroke='%23c17817' stroke-width='3'/><path d='M80 80 L220 80 L220 170 L80 170 Z' fill='none' stroke='%23c17817' stroke-width='3'/><circle cx='150' cy='125' r='30' fill='%23c17817' opacity='0.5'/></svg>" alt="Halı 2">
+                    <div class="product-overlay">
+                        <button class="btn btn-primary">İncele</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>Antika İran Halısı</h3>
+                    <div class="product-price">₺24.800</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 300 250'><rect width='300' height='250' fill='%23d4a373' opacity='0.3'/><path d='M30 30 L270 30 L270 220 L30 220 Z' fill='none' stroke='%23c17817' stroke-width='3'/><path d='M80 80 L220 80 L220 170 L80 170 L80 80' fill='none' stroke='%23c17817' stroke-width='2'/><path d='M120 100 L200 100 L200 150 L120 150 Z' fill='%23c17817' opacity='0.5'/></svg>" alt="Halı 3">
+                    <div class="product-overlay">
+                        <button class="btn btn-primary">İncele</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>Modern Geometrik</h3>
+                    <div class="product-price">₺8.900</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 300 250'><rect width='300' height='250' fill='%23b5824e' opacity='0.3'/><path d='M70 70 L230 70 L230 180 L70 180 Z' fill='none' stroke='%23c17817' stroke-width='3'/><path d='M120 100 L200 100 L200 150 L120 150 Z' fill='none' stroke='%23c17817' stroke-width='2'/><circle cx='160' cy='125' r='20' fill='%23c17817' opacity='0.5'/></svg>" alt="Halı 4">
+                    <div class="product-overlay">
+                        <button class="btn btn-primary">İncele</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>Osmanlı Desenli</h3>
+                    <div class="product-price">₺16.500</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 300 250'><rect width='300' height='250' fill='%239f6e42' opacity='0.3'/><path d='M50 70 L250 70 L250 200 L50 200 Z' fill='none' stroke='%23c17817' stroke-width='3'/><path d='M100 100 L200 100 L200 170 L100 170 Z' fill='none' stroke='%23c17817' stroke-width='2'/><path d='M130 120 L170 120 L170 150 L130 150 Z' fill='%23c17817' opacity='0.5'/></svg>" alt="Halı 5">
+                    <div class="product-overlay">
+                        <button class="btn btn-primary">İncele</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>Kafkas Desenli</h3>
+                    <div class="product-price">₺19.200</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 300 250'><rect width='300' height='250' fill='%23c59b6b' opacity='0.3'/><path d='M60 60 L240 60 L240 190 L60 190 Z' fill='none' stroke='%23c17817' stroke-width='3'/><path d='M90 90 L210 90 L210 160 L90 160 Z' fill='none' stroke='%23c17817' stroke-width='2'/><circle cx='150' cy='125' r='25' fill='%23c17817' opacity='0.5'/></svg>" alt="Halı 6">
+                    <div class="product-overlay">
+                        <button class="btn btn-primary">İncele</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>Çağdaş Tasarım</h3>
+                    <div class="product-price">₺11.800</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Özel Teklif -->
+    <section class="special-offer">
+        <div class="offer-banner">
+            <h2>Özel Kış Koleksiyonu</h2>
+            <p>Seçili halılarda %40'a varan indirim fırsatını kaçırmayın!</p>
+            <div class="offer-timer">
+                <div class="timer-item">
+                    <div class="timer-number">07</div>
+                    <div>Gün</div>
+                </div>
+                <div class="timer-item">
+                    <div class="timer-number">12</div>
+                    <div>Saat</div>
+                </div>
+                <div class="timer-item">
+                    <div class="timer-number">45</div>
+                    <div>Dakika</div>
+                </div>
+                <div class="timer-item">
+                    <div class="timer-number">23</div>
+                    <div>Saniye</div>
+                </div>
+            </div>
+            <button class="btn btn-primary">Hemen İncele</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div>
+                <div class="footer-logo">Haliya</div>
+                <p style="margin: 1rem 0; color: #e8d9c5;">Özel halıların adresi</p>
+            </div>
+            <div class="footer-links">
+                <h4>Hızlı Bağlantılar</h4>
+                <a href="#">Hakkımızda</a>
+                <a href="#">Koleksiyonlar</a>
+                <a href="#">Blog</a>
+                <a href="#">SSS</a>
+            </div>
+            <div class="footer-links">
+                <h4>Yasal</h4>
+                <a href="#">Gizlilik Politikası</a>
+                <a href="#">Kullanım Koşulları</a>
+                <a href="#">İade Koşulları</a>
+            </div>
+            <div>
+                <h4>Bizi Takip Edin</h4>
+                <div class="social-icons">
+                    <div class="social-icon">📘</div>
+                    <div class="social-icon">📸</div>
+                    <div class="social-icon">🐦</div>
+                    <div class="social-icon">📌</div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            © 2024 Haliya. Tüm hakları saklıdır.
+        </div>
+    </footer>
+
+    <!-- JavaScript Animasyonları -->
+    <script>
+        // Sayfa yüklendiğinde animasyonlar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Scroll animasyonları için Intersection Observer
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Tüm kartları gözlemle
+            document.querySelectorAll('.category-card, .product-card').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'all 0.6s ease';
+                observer.observe(el);
+            });
+
+            // Sayaç animasyonu
+            function updateTimer() {
+                // Rastgele sayılar (gerçek uygulamada backend'den alınır)
+                const days = Math.floor(Math.random() * 30);
+                const hours = Math.floor(Math.random() * 24);
+                const minutes = Math.floor(Math.random() * 60);
+                const seconds = Math.floor(Math.random() * 60);
+                
+                document.querySelector('.timer-item:nth-child(1) .timer-number').textContent = days.toString().padStart(2, '0');
+                document.querySelector('.timer-item:nth-child(2) .timer-number').textContent = hours.toString().padStart(2, '0');
+                document.querySelector('.timer-item:nth-child(3) .timer-number').textContent = minutes.toString().padStart(2, '0');
+                document.querySelector('.timer-item:nth-child(4) .timer-number').textContent = seconds.toString().padStart(2, '0');
+            }
+
+            // Her saniye güncelle
+            setInterval(updateTimer, 1000);
+
+            // Smooth scroll
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Navbar scroll efekti
+            let lastScroll = 0;
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                const navbar = document.querySelector('.navbar');
+                
+                if (currentScroll > lastScroll && currentScroll > 100) {
+                    navbar.style.transform = 'translateY(-100%)';
+                } else {
+                    navbar.style.transform = 'translateY(0)';
+                }
+                
+                if (currentScroll > 50) {
+                    navbar.style.background = 'rgba(250, 247, 242, 0.95)';
+                    navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
+                } else {
+                    navbar.style.background = 'rgba(250, 247, 242, 0.9)';
+                    navbar.style.boxShadow = 'none';
+                }
+                
+                lastScroll = currentScroll;
+            });
+
+            // Buton tıklama efektleri
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+        });
+
+        // Parallax efekti
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const floatingCarpets = document.querySelectorAll('.floating-carpet');
+            
+            floatingCarpets.forEach((carpet, index) => {
+                const speed = 0.1 + (index * 0.05);
+                carpet.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+
+        // Mouse hareketi ile ışık efekti
+        document.addEventListener('mousemove', (e) => {
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                const x = (e.clientX / window.innerWidth) * 100;
+                const y = (e.clientY / window.innerHeight) * 100;
+                hero.style.background = `radial-gradient(circle at ${x}% ${y}%, #faf7f2, #e8d9c5)`;
+            }
+        });
+    </script>
+</body>
+</html>
