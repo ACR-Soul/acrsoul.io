@@ -1,79 +1,26 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<title>ACR-Soul</title>
-<style>
-    body {
-        background: #111;
-        color: white;
-        font-family: Arial, sans-serif;
-        text-align: center;
-    }
+import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { motion } from "framer-motion";
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
+import { loadStripe } from "@stripe/stripe-js";
 
-    h1 {
-        margin-top: 30px;
-        font-size: 40px;
-        color: #f33;
-        letter-spacing: 2px;
-    }
+// ================= FIREBASE CONFIG =================
+// Firebase console üzerinden oluşturup buraya kendi bilgilerini ekle
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
 
-    .player-box {
-        margin-top: 40px;
-    }
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    input {
-        padding: 10px;
-        width: 200px;
-        border-radius: 6px;
-        border: none;
-        outline: none;
-    }
-
-    .head {
-        margin-top: 20px;
-        width: 128px;
-        height: 128px;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .head:hover {
-        transform: scale(1.05);
-    }
-</style>
-</head>
-<body>
-
-<h1>ACR-Soul</h1>
-
-<div class="player-box">
-    <h2>Kullanıcı Nick Gir</h2>
-    <input id="nick" placeholder="Örnek: _Acroz_" oninput="updateHead()">
-
-    <br>
-    <a id="profileLink" href="https://www.youtube.com/@Acroz_" target="_blank">
-        <img id="playerHead" class="head"
-             src="https://mc-heads.net/avatar/Steve/128"
-             alt="Oyuncu Kafası">
-    </a>
-</div>
-
-<script>
-function updateHead() {
-    const nick = document.getElementById("nick").value.trim();
-    const headImg = document.getElementById("playerHead");
-
-    if (nick.length > 0) {
-        headImg.src = `https://mc-heads.net/avatar/${nick}/128`;
-
-        // Tıklandığında açılacak link:
-        document.getElementById("profileLink").href =
-            `https://tr.namemc.com/profile/_Acroz_${nick}`;
-    }
-}
-</script>
-
-</body>
-</html>
+// ================= STRIPE CONFIG =================
+const stripePromise = loadStripe("YOUR_ST
